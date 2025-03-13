@@ -1,0 +1,16 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+USE_PROCD=1
+
+start_service() {
+    # Load blocklists
+    /usr/share/blocker/update-blocklists.sh
+    
+    # Initialize ipset
+    ipset create blocked_ips hash:ip
+    iptables -I FORWARD -m set --match-set blocked_ips dst -j DROP
+    
+    # Start web UI
+    /etc/init.d/uhttpd restart
+}
